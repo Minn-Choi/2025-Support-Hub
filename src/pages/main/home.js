@@ -77,6 +77,7 @@ export const Right = {
 }
 
 export const popupOverlayStyle = {
+    zIndex:'2',
     position: "fixed",
     top: 0,
     left: 0,
