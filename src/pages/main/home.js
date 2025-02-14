@@ -9,7 +9,7 @@ export const buttonStyle = (isActive) => ({
 });
 
 export const listItemStyle = {
-    zIndex: "-1",
+    zIndex: "0",
     position: "relative",
     padding: "10px 20px",
     margin: "5px auto", 
@@ -121,8 +121,8 @@ export const ors = {
     left:'44px',
     backgroundColor: "#FC521C",
     color: "white",
-    padding: "10px 8px",
-    borderRadius: "10px",
+    padding: "8px 9px 6px 8px",
+    borderRadius: "10px 20px 10px 10px",
     fontSize: '13px'
 };
 
@@ -139,6 +139,7 @@ export const ors2 = {
    
 };
 export const Title = {
+    fontSize:'18px',
     marginLeft: '20px',
     whiteSpace: 'nowrap',
     overflow: 'hidden',  

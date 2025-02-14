@@ -85,9 +85,11 @@ function Home() {
     };
 
     const openDetailPopup = (detail) => {
+        console.log("✅ 팝업 열기:", detail); 
         setSelectedDetail(detail);
         setShowPopup(true);
     };
+    
 
     const closeDetailPopup = () => {
         setSelectedDetail(null);
@@ -101,7 +103,7 @@ function Home() {
                 <SupportBox />
             </div>
 
-            <p style={{ color: status.includes("❌") ? "red" : "green", fontWeight: "bold" }}>{status}</p>
+            <p style={{ color: status.includes("❌") ? "red" : "green", fontWeight: "bold", fontSize:'12px' }}>{status}</p>
 
             <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
                 <Calendar 
@@ -185,7 +187,7 @@ function Home() {
                 {(selectedTab === 1 ? (isLatestSort ? data.latest : data.popular) : data.popular).map((item, index) => (
                     <li key={index} style={S.listItemStyle}>
                         <span style={S.ors1}>
-                            <img src="/images/circle.svg" alt="링크이동"/>
+                            <img src="/images/circle.svg" alt="주최"/>
                         </span>
                         <span style={S.ors2} />
                         <span style={S.ors}>{item.organization}</span>
@@ -198,6 +200,19 @@ function Home() {
                     </li>
                 ))}
             </ul>
+
+            {showPopup && selectedDetail && (
+                <div style={S.popupOverlayStyle} onClick={closeDetailPopup}>
+                    <div style={S.popupContentStyle} onClick={(e) => e.stopPropagation()}>
+                        <h2>{selectedDetail.title}</h2>
+                        <p><strong>사업 기간:</strong> {selectedDetail.date}</p>
+                        <p><strong>사업 정보:</strong></p>
+                        <pre style={S.detailTextStyle}>{selectedDetail.detailContent}</pre>
+                        <button onClick={closeDetailPopup} style={S.closeButtonStyle}>닫기</button>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }

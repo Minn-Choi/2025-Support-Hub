@@ -10,6 +10,12 @@ export const Wrapper = styled.div`
     box-shadow: 3px 6px 11px 0px rgba(0, 0, 0, 0.25);
     margin-bottom: 80px;
     cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    
+    &:hover {
+        box-shadow: 5px 10px 15px rgba(0, 0, 0, 0.35);
+        transform: translateY(-5px);
+    }
 `;
 
 export const Content = styled.div`
