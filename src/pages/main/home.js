@@ -9,24 +9,72 @@ export const buttonStyle = (isActive) => ({
 });
 
 export const listItemStyle = {
-    backgroundColor: "#f9f9f9",
-    padding: "10px",
-    margin: "5px",
-    borderRadius: "5px",
-    border: "1px solid #ddd",
+    zIndex: "-1",
+    position: "relative",
+    padding: "10px 20px",
+    margin: "5px auto", 
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "center", 
+    justifyContent: "space-between", 
+    width: '100%',
+    maxWidth: '900px',
+    height: '70px',
+    flexShrink: '0',
+    borderRadius: '40px',
+    background: '#FFF',
+    boxShadow: '2px 4px 10px 0px rgba(0, 0, 0, 0.25)',
+    marginBottom: '40px',
 };
 
+export const sortContainer = {
+    marginTop: "10px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",  
+    width: "90%",              
+    maxWidth: "880px",
+    gap: "10px",
+    marginLeft: "auto",        
+    marginRight: "auto",
+};
+
+export const sortOption = (isActive) => ({
+    fontWeight: isActive ? "bold" : "normal",
+    cursor: "pointer",
+    textDecoration: isActive ? "none" : "none",
+    color: "#1B1C1E",
+    textAlign: "center",
+    fontFeatureSettings: "'liga' off, 'clig' off",
+    fontFamily: "Pretendard",
+    fontSize: "14px",
+    fontStyle: "normal",
+    
+});
+
 export const detailButtonStyle = {
-    backgroundColor: "#007bff",
+    backgroundColor: "white",
     color: "white",
     border: "none",
     padding: "8px 12px",
     cursor: "pointer",
     borderRadius: "5px",
 };
+
+export const sortButtonStyle = {
+    margin: "5px",
+    padding: "10px",
+    fontSize: "16px",
+    cursor: "pointer",
+    backgroundColor: "#f0f0f0",  
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+};
+
+
+export const Right = {
+    position: "absolute",
+    right:'5px',
+}
 
 export const popupOverlayStyle = {
     position: "fixed",
@@ -68,10 +116,34 @@ export const closeButtonStyle = {
 };
 
 export const ors = {
-    backgroundColor: "pink",
-    color: "black",
-    padding: "10px 5px",
-    borderRadius: "5px",
+    position: 'absolute',
+    top:'-22px',
+    left:'44px',
+    backgroundColor: "#FC521C",
+    color: "white",
+    padding: "10px 8px",
+    borderRadius: "10px",
+    fontSize: '13px'
+};
+
+export const ors1 = {
+    position: 'absolute',
+    top:'-22px',
+    left:'30px',
+};
+
+export const ors2 = {
+    position: 'absolute',
+    top:'-15px',
+    left:'40px',
+   
+};
+export const Title = {
+    marginLeft: '20px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',  
+    textOverflow: 'ellipsis',  
+    maxWidth: '62%',
 };
 
 export const calendarEventStyle = (eventCount) => ({
