@@ -45,6 +45,7 @@ export const Support = styled.div`
     font-weight: 300;
     line-height: normal;
     margin-top: 10px;
+    text-align: left;
 `;
 
 export const Search = styled.div`

@@ -7,7 +7,7 @@ function Footer() {
             <S.Box>
                 <S.Content>
                     <S.Contest>서울특별시중구시설관리공단</S.Contest>
-                    <S.Support>서울특별시 중구 동호로 8다길 22 (약수동)  | Tel 02-2280-8300</S.Support>
+                    <S.Support>서울특별시 중구 동호로 8다길 22 (약수동)   |   Tel 02-2280-8300</S.Support>
                 </S.Content>
                 <S.Search>
                     <img src="/images/insta.svg" alt="인스타연결" />

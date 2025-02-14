@@ -41,7 +41,7 @@ export const Contest = styled.div`
 `;
 export const Support = styled.div`
     color: #000;
-    text-align: center;
+    text-align: left;
     font-feature-settings: 'liga' off, 'clig' off;
     font-family: Pretendard;
     font-size: 16px;
@@ -53,5 +53,5 @@ export const Support = styled.div`
 export const Search = styled.div`
     display: flex;
     gap: 16px;
-    
+    margin-top: 10px;
 `;
