@@ -8,7 +8,7 @@ import ContestBox from "../../components/contest/contestBox.jsx";
 import SupportBox from "../../components/support/supportBox.jsx";
 
 function Home() {  
-    const [data, setData] = useState({ popular: [], latest: [] });
+    const [data, setData] = useState({ popular: [], latest: [], closingSoon: [] });
     const [status, setStatus] = useState("대기 중...");
     const [selectedTab, setSelectedTab] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -18,6 +18,9 @@ function Home() {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedEvents, setSelectedEvents] = useState([]);
     const [isLatestSort, setIsLatestSort] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState("popular");
+
+
 
     useEffect(() => {
         const processCalendarData = () => {
@@ -54,19 +57,37 @@ function Home() {
 
     const fetchData = async (tabIndex) => {
         setStatus(`탭 ${tabIndex}의 데이터 가져오는 중...`);
-        setData({ popular: [], latest: [] });
+        setData({ popular: [], latest: [], closingSoon: [] }); 
         setLoading(true);
-
+    
         try {
             const response = await fetch(`http://localhost:5000/crawl?tabIndex=${tabIndex}`);
             const result = await response.json();
-
+    
             if (result.success) {
-                let filteredData = result.data.slice(10);
-                let popularData = filteredData.slice(0, 10);
-                let latestData = filteredData.slice(10, 20).sort((a, b) => new Date(b.date) - new Date(a.date));
-
-                setData({ popular: popularData, latest: latestData });
+                if (tabIndex === 0) {
+                    let first30Data = result.data.slice(0, 30);
+                    let popularData = first30Data.slice(0, 10); 
+                    let latestData = first30Data.slice(10, 20).sort((a, b) => new Date(b.date) - new Date(a.date));  
+                    let closingSoonData = first30Data.slice(20, 30).sort((a, b) => new Date(a.date) - new Date(b.date)); 
+                    setData({ 
+                        popular: popularData || [], 
+                        latest: latestData || [], 
+                        closingSoon: closingSoonData || [] 
+                    });
+                } else {
+                    
+                    let filteredData = result.data.slice(10);
+                    let popularData = filteredData.slice(0, 10);
+                    let latestData = filteredData.slice(10, 20).sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+                    setData({ 
+                        popular: popularData || [], 
+                        latest: latestData || [], 
+                        closingSoon: [] 
+                    });
+                }
+    
                 setStatus(`✅ 탭 ${tabIndex} 크롤링 성공!`);
                 setSelectedTab(tabIndex);
             } else {
@@ -79,6 +100,8 @@ function Home() {
             setLoading(false);
         }
     };
+    
+    
 
     const toggleSort = () => {
         setIsLatestSort((prev) => !prev);
@@ -182,24 +205,77 @@ function Home() {
 
             </div>
 
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+                <button onClick={() => setSelectedCategory("popular")} style={S.sortOption(selectedCategory === "popular")}>
+                    인기순
+                </button>
+                |
+                <button onClick={() => setSelectedCategory("latest")} style={S.sortOption(selectedCategory === "latest")}>
+                    최신순
+                </button>
+                |
+                <button onClick={() => setSelectedCategory("closingSoon")} style={S.sortOption(selectedCategory === "closingSoon")}>
+                    마감 임박
+                </button>
+            </div>
+
+
 
             <ul style={{ listStyleType: "none", padding: 0, marginTop: "50px", display:'flex', flexDirection:"column", width:'100%', alignContent:"center", justifyContent:"center" }}>
-                {(selectedTab === 1 ? (isLatestSort ? data.latest : data.popular) : data.popular).map((item, index) => (
-                    <li key={index} style={S.listItemStyle}>
-                        <span style={S.ors1}>
-                            <img src="/images/circle.svg" alt="주최"/>
-                        </span>
-                        <span style={S.ors2} />
-                        <span style={S.ors}>{item.organization}</span>
-                        <strong style={S.Title}>{item.title}</strong> 
-                        <div style={S.Right}>{item.date}
-                            <button onClick={() => openDetailPopup(item)} style={S.detailButtonStyle}>
-                                <img src="/images/right.svg" alt="링크이동" width="7"/>
-                            </button>
-                        </div>
-                    </li>
-                ))}
+                {selectedTab === 0 && (
+                    <>
+                        {selectedCategory === "popular" && data.popular?.length > 0 ? (
+                            data.popular.map((item, index) => (
+                                <li key={index} style={S.listItemStyle}>
+                                    <span style={S.ors1}>
+                                        <img src="/images/circle.svg" alt="주최"/>
+                                    </span>
+                                    <span style={S.ors}>{item.organization}</span>
+                                    <strong style={S.Title}>{item.title}</strong> 
+                                    <div style={S.Right}>{item.date}
+                                        <button onClick={() => openDetailPopup(item)} style={S.detailButtonStyle}>
+                                            <img src="/images/right.svg" alt="링크이동" width="7"/>
+                                        </button>
+                                    </div>
+                                </li>
+                            ))
+                        ) : selectedCategory === "latest" && data.latest?.length > 0 ? (
+                            data.latest.map((item, index) => (
+                                <li key={index} style={S.listItemStyle}>
+                                    <span style={S.ors1}>
+                                        <img src="/images/circle.svg" alt="주최"/>
+                                    </span>
+                                    <span style={S.ors}>{item.organization}</span>
+                                    <strong style={S.Title}>{item.title}</strong> 
+                                    <div style={S.Right}>{item.date}
+                                        <button onClick={() => openDetailPopup(item)} style={S.detailButtonStyle}>
+                                            <img src="/images/right.svg" alt="링크이동" width="7"/>
+                                        </button>
+                                    </div>
+                                </li>
+                            ))
+                        ) : selectedCategory === "closingSoon" && data.closingSoon?.length > 0 ? (
+                            data.closingSoon.map((item, index) => (
+                                <li key={index} style={S.listItemStyle}>
+                                    <span style={S.ors1}>
+                                        <img src="/images/circle.svg" alt="주최"/>
+                                    </span>
+                                    <span style={S.ors}>{item.organization}</span>
+                                    <strong style={S.Title}>{item.title}</strong> 
+                                    <div style={S.Right}>{item.date}
+                                        <button onClick={() => openDetailPopup(item)} style={S.detailButtonStyle}>
+                                            <img src="/images/right.svg" alt="링크이동" width="7"/>
+                                        </button>
+                                    </div>
+                                </li>
+                            ))
+                        ) : (
+                            <p>데이터 없음</p>
+                        )}
+                    </>
+                )}
             </ul>
+
 
             {showPopup && selectedDetail && (
                 <div style={S.popupOverlayStyle} onClick={closeDetailPopup}>

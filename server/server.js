@@ -53,7 +53,7 @@ app.get("/crawl", async (req, res) => {
 
                 const titleElement = item.querySelector(".tit.pcOnly");  
                 const dateElement = item.querySelector(".termDate");
-                const orgElement = item.querySelector(".badge.round.blue");  
+                const orgElement = item.querySelector(".badge.round.blue");
 
                 const title = titleElement?.innerText.trim() || "제목 없음";
                 const date = dateElement?.innerText.trim() || "기간 없음";
