@@ -1,296 +1,148 @@
-import React, { useState, useEffect } from "react";
-import Calendar from "react-calendar";
-import moment from "moment";  
-import "react-calendar/dist/Calendar.css"; 
-import "../../App.css";
-import * as S from "./home";
-import ContestBox from "../../components/contest/contestBox.jsx";
-import SupportBox from "../../components/support/supportBox.jsx";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-function Home() {  
-    const [data, setData] = useState({ popular: [], latest: [], closingSoon: [] });
-    const [status, setStatus] = useState("대기 중...");
-    const [selectedTab, setSelectedTab] = useState(0);
-    const [loading, setLoading] = useState(false);
-    const [selectedDetail, setSelectedDetail] = useState(null);
-    const [showPopup, setShowPopup] = useState(false);
-    const [calendarData, setCalendarData] = useState({});
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [selectedEvents, setSelectedEvents] = useState([]);
-    const [isLatestSort, setIsLatestSort] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState("popular");
+const OpenAPIComponent = () => {
+  const [pbnsData, setPbnsData] = useState([]); 
+  const [asbsData, setAsbsData] = useState([]);
 
+  const API_KEY = import.meta.env.VITE_API_KEY;
 
-
-    useEffect(() => {
-        const processCalendarData = () => {
-            if (!data.popular.length && !data.latest.length) return; 
-
-            const dateMap = {};
-            [...data.popular, ...data.latest].forEach((item) => {
-                const dates = item.date.split("~").map(d => d.trim()); 
-                const startDate = moment(dates[0], "YYYY.MM.DD"); 
-                const endDate = moment(dates[1], "YYYY.MM.DD"); 
-
-                if (!startDate.isValid() || !endDate.isValid()) {
-                    console.error(`❌ 유효하지 않은 날짜 데이터: ${item.date}`);
-                    return;
-                }
-
-                let currentDate = startDate.clone(); 
-                while (currentDate.isSameOrBefore(endDate, "day")) {
-                    const formattedDate = currentDate.format("YYYY-MM-DD");
-                    if (!dateMap[formattedDate]) {
-                        dateMap[formattedDate] = [item.title];
-                    } else {
-                        dateMap[formattedDate].push(item.title);
-                    } 
-                    currentDate.add(1, "day");
-                }
-            });
-
-            setCalendarData(dateMap);
-        };
-
-        processCalendarData();
-    }, [data]);
-
-    const fetchData = async (tabIndex) => {
-        setStatus(`탭 ${tabIndex}의 데이터 가져오는 중...`);
-        setData({ popular: [], latest: [], closingSoon: [] }); 
-        setLoading(true);
-    
-        try {
-            const response = await fetch(`http://localhost:5000/crawl?tabIndex=${tabIndex}`);
-            const result = await response.json();
-    
-            if (result.success) {
-                if (tabIndex === 0) {
-                    let first30Data = result.data.slice(0, 30);
-                    let popularData = first30Data.slice(0, 10); 
-                    let latestData = first30Data.slice(10, 20).sort((a, b) => new Date(b.date) - new Date(a.date));  
-                    let closingSoonData = first30Data.slice(20, 30).sort((a, b) => new Date(a.date) - new Date(b.date)); 
-                    setData({ 
-                        popular: popularData || [], 
-                        latest: latestData || [], 
-                        closingSoon: closingSoonData || [] 
-                    });
-                } else {
-                    
-                    let filteredData = result.data.slice(10);
-                    let popularData = filteredData.slice(0, 10);
-                    let latestData = filteredData.slice(10, 20).sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-                    setData({ 
-                        popular: popularData || [], 
-                        latest: latestData || [], 
-                        closingSoon: [] 
-                    });
-                }
-    
-                setStatus(`✅ 탭 ${tabIndex} 크롤링 성공!`);
-                setSelectedTab(tabIndex);
-            } else {
-                throw new Error(result.message);
-            }
-        } catch (error) {
-            console.error("❌ API 오류:", error);
-            setStatus("❌ 크롤링 실패! 서버 오류.");
-        } finally {
-            setLoading(false);
+  const fetchPbnsData = async () => {
+    try {
+      const response = await axios.get(
+        `http://apis.data.go.kr/1051000/MoefOpenAPI/T_OPD_PBNS`,
+        {
+          params: {
+            serviceKey: API_KEY,
+            pageNo: 1,
+            numOfRows: 10,
+            resultType: "json",
+            bsnsyear: 2025,
+            jrsd_nm: "보건복지부",
+          },
         }
-    };
-    
-    
-
-    const toggleSort = () => {
-        setIsLatestSort((prev) => !prev);
-    };
-
-    const openDetailPopup = (detail) => {
-        console.log("✅ 팝업 열기:", detail); 
-        setSelectedDetail(detail);
-        setShowPopup(true);
-    };
-    
-
-    const closeDetailPopup = () => {
-        setSelectedDetail(null);
-        setShowPopup(false);
-    };
-
-    return (
-        <div style={{ textAlign: "center", padding: "20px" }}>
-            <div style={{ display: "flex", justifyContent: "center", gap:"26px", marginTop:"30px" }}>
-                <ContestBox />
-                <SupportBox />
-            </div>
-
-            <p style={{ color: status.includes("❌") ? "red" : "green", fontWeight: "bold", fontSize:'12px' }}>{status}</p>
-
-            <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-                <Calendar 
-                    locale="en-US"
-                    defaultView="month" 
-                    onClickDay={(date) => {
-                        const dateString = moment(date).format("YYYY-MM-DD");
-                        setSelectedDate(dateString);
-                        setSelectedEvents(calendarData[dateString] || []);
-                    }}
-                    tileContent={({ date }) => {
-                        const dateString = moment(date).format("YYYY-MM-DD");
-                        if (calendarData[dateString]) {
-                            const events = calendarData[dateString];
-                            return (
-                                <div style={S.calendarEventStyle(events.length)}>
-                                    {events.length > 2 
-                                        ? `${events[0]} 외 ${events.length - 1}개` 
-                                        : events.join(", ")}
-                                </div>
-                            );
-                        }
-                        return null;
-                    }}
-                    tileClassName={({ date }) => {
-                        const dateString = moment(date).format("YYYY-MM-DD");
-                        return calendarData[dateString] ? "highlight-date" : null;
-                    }}
-                />
-            </div>
-
-            {selectedDate && (
-                <div style={S.popupOverlayStyle} onClick={() => setSelectedDate(null)}>
-                    <div style={S.popupContentStyle} onClick={(e) => e.stopPropagation()}>
-                        <h2>{selectedDate} 일정</h2>
-                        {selectedEvents.length > 0 ? (
-                            <ul>
-                                {selectedEvents.map((event, index) => (
-                                    <li key={index}>{event}</li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>일정 없음</p>
-                        )}
-                        <button onClick={() => setSelectedDate(null)} style={S.closeButtonStyle}>닫기</button>
-                    </div>
-                </div>
-            )}
-
-            <div>
-                <button onClick={() => fetchData(0)} disabled={loading} style={S.buttonStyle(selectedTab === 0)}>
-                    {loading && selectedTab === 0 ? "로딩 중..." : "공모사업"}
-                </button>
-
-                <button onClick={() => fetchData(1)} disabled={loading} style={S.buttonStyle(selectedTab === 1)}>
-                    {loading && selectedTab === 1 ? "로딩 중..." : "보조사업"}
-                </button>
-
-                {selectedTab === 1 && (
-                    <div style={S.sortContainer}>
-                        <span 
-                            onClick={() => setIsLatestSort(false)} 
-                            style={S.sortOption(!isLatestSort)}
-                        >
-                            인기순
-                        </span>
-                        |
-                        <span 
-                            onClick={() => setIsLatestSort(true)} 
-                            style={S.sortOption(isLatestSort)}
-                        >
-                            최신순
-                        </span>
-                    </div>
-                )}
-
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-                <button onClick={() => setSelectedCategory("popular")} style={S.sortOption(selectedCategory === "popular")}>
-                    인기순
-                </button>
-                |
-                <button onClick={() => setSelectedCategory("latest")} style={S.sortOption(selectedCategory === "latest")}>
-                    최신순
-                </button>
-                |
-                <button onClick={() => setSelectedCategory("closingSoon")} style={S.sortOption(selectedCategory === "closingSoon")}>
-                    마감 임박
-                </button>
-            </div>
+      );
+      console.log("T_OPD_PBNS 응답 데이터:", response.data);
+      if (response.data.response?.body?.items?.item) {
+        setPbnsData(response.data.response.body.items.item);
+      } else {
+        console.error("T_OPD_PBNS 데이터 없음!");
+      }
+    } catch (error) {
+      console.error("T_OPD_PBNS API 요청 중 오류 발생:", error);
+    }
+  };
 
 
+  const fetchAsbsData = async () => {
+    try {
+      const response = await axios.get(
+        `http://apis.data.go.kr/1051000/MoefOpenAPI/T_OPD_ASBS_IFPBNT`,
+        {
+          params: {
+            serviceKey: API_KEY,
+            pageNo: 1,
+            numOfRows: 10,
+            resultType: "json",
+            bsnsyear: 2025,
+            jrsd_nm: "보건복지부",
+            exc_instt_nm: "제주특별자치도",
+          },
+        }
+      );
+      console.log("T_OPD_ASBS_IFPBNT 응답 데이터:", response.data);
+      if (response.data.response?.body?.items?.item) {
+        setAsbsData(response.data.response.body.items.item);
+      } else {
+        console.error("T_OPD_ASBS_IFPBNT 데이터 없음!");
+      }
+    } catch (error) {
+      console.error("T_OPD_ASBS_IFPBNT API 요청 중 오류 발생:", error);
+    }
+  };
 
-            <ul style={{ listStyleType: "none", padding: 0, marginTop: "50px", display:'flex', flexDirection:"column", width:'100%', alignContent:"center", justifyContent:"center" }}>
-                {selectedTab === 0 && (
-                    <>
-                        {selectedCategory === "popular" && data.popular?.length > 0 ? (
-                            data.popular.map((item, index) => (
-                                <li key={index} style={S.listItemStyle}>
-                                    <span style={S.ors1}>
-                                        <img src="/images/circle.svg" alt="주최"/>
-                                    </span>
-                                    <span style={S.ors}>{item.organization}</span>
-                                    <strong style={S.Title}>{item.title}</strong> 
-                                    <div style={S.Right}>{item.date}
-                                        <button onClick={() => openDetailPopup(item)} style={S.detailButtonStyle}>
-                                            <img src="/images/right.svg" alt="링크이동" width="7"/>
-                                        </button>
-                                    </div>
-                                </li>
-                            ))
-                        ) : selectedCategory === "latest" && data.latest?.length > 0 ? (
-                            data.latest.map((item, index) => (
-                                <li key={index} style={S.listItemStyle}>
-                                    <span style={S.ors1}>
-                                        <img src="/images/circle.svg" alt="주최"/>
-                                    </span>
-                                    <span style={S.ors}>{item.organization}</span>
-                                    <strong style={S.Title}>{item.title}</strong> 
-                                    <div style={S.Right}>{item.date}
-                                        <button onClick={() => openDetailPopup(item)} style={S.detailButtonStyle}>
-                                            <img src="/images/right.svg" alt="링크이동" width="7"/>
-                                        </button>
-                                    </div>
-                                </li>
-                            ))
-                        ) : selectedCategory === "closingSoon" && data.closingSoon?.length > 0 ? (
-                            data.closingSoon.map((item, index) => (
-                                <li key={index} style={S.listItemStyle}>
-                                    <span style={S.ors1}>
-                                        <img src="/images/circle.svg" alt="주최"/>
-                                    </span>
-                                    <span style={S.ors}>{item.organization}</span>
-                                    <strong style={S.Title}>{item.title}</strong> 
-                                    <div style={S.Right}>{item.date}
-                                        <button onClick={() => openDetailPopup(item)} style={S.detailButtonStyle}>
-                                            <img src="/images/right.svg" alt="링크이동" width="7"/>
-                                        </button>
-                                    </div>
-                                </li>
-                            ))
-                        ) : (
-                            <p>데이터 없음</p>
-                        )}
-                    </>
-                )}
-            </ul>
+  useEffect(() => {
+    fetchPbnsData();
+    fetchAsbsData();
+  }, []);
 
+  return (
+    <div>
+      <h2>📢 2025년 공모사업 목록</h2>
+      <h3>📌 공모사업 목록 (T_OPD_PBNS)</h3>
+      {pbnsData.length > 0 ? (
+        <table border="1" cellPadding="10" style={{ borderCollapse: "collapse", width: "100%" }}>
+        <thead>
+          <tr>
+            <th>사업명</th>
+            <th>수행 기관</th>
+            <th>사업 개요</th>
+            <th>지원 금액</th>
+            <th>접수 기간</th>
+            <th>제출 서류</th>
+            <th>접수 방법</th>
+            <th>담당자 연락처</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pbnsData.map((item, index) => (
+            <tr key={index}>
+              <td>{item.DDTLBZ_NM || "N/A"}</td>
+              <td>{item.PSSRP_INSTT_NM || "N/A"}</td>
+              <td>{item.BSNS_SMRY || item.BSNS_PURPS_CN || "N/A"}</td>
+              <td>{item.SPORT_BGAMT ? item.SPORT_BGAMT.toLocaleString() + " 원" : "N/A"}</td>
+              <td>{item.RCEPT_BEGIN_DE && item.RCEPT_END_DE ? `${item.RCEPT_BEGIN_DE} ~ ${item.RCEPT_END_DE}` : "N/A"}</td>
+              <td>{item.PRESENTN_PAPERS_GUIDANCE_CN || "N/A"}</td>
+              <td>{item.REQST_RCEPT_MTH_CN || "N/A"}</td>
+              <td>
+                {item.CHARGER_NM ? `${item.CHARGER_NM} (${item.CHARGER_TELNO || "N/A"})` : "N/A"}
+                <br />
+                {item.CHARGER_EMAIL && <a href={`mailto:${item.CHARGER_EMAIL}`}>{item.CHARGER_EMAIL}</a>}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      
+      ) : (
+        <p>데이터를 불러오는 중입니다...</p>
+      )}
 
-            {showPopup && selectedDetail && (
-                <div style={S.popupOverlayStyle} onClick={closeDetailPopup}>
-                    <div style={S.popupContentStyle} onClick={(e) => e.stopPropagation()}>
-                        <h2>{selectedDetail.title}</h2>
-                        <p><strong>사업 기간:</strong> {selectedDetail.date}</p>
-                        <p><strong>사업 정보:</strong></p>
-                        <pre style={S.detailTextStyle}>{selectedDetail.detailContent}</pre>
-                        <button onClick={closeDetailPopup} style={S.closeButtonStyle}>닫기</button>
-                    </div>
-                </div>
-            )}
+      <h3>📌 보조사업 수행기관별 목록 (T_OPD_ASBS_IFPBNT)</h3>
+      {asbsData.length > 0 ? (
+        <table border="1" cellPadding="10" style={{ borderCollapse: "collapse", width: "100%" }}>
+          <thead>
+            <tr>
+              <th>사업명</th>
+              <th>수행 기관</th>
+              <th>사업 차수</th>
+              <th>국고보조금</th>
+              <th>지자체보조금</th>
+              <th>자기부담금</th> 
+              <th>기타부담금</th>
+              <th>기준일자</th>
+            </tr>
+          </thead>
+          <tbody>
+            {asbsData.map((item, index) => (
+              <tr key={index}>
+                <td>{item.DDTLBZ_NM || "N/A"}</td>
+                <td>{item.EXC_INSTT_NM || "N/A"}</td>
+                <td>{item.DDTLBZ_ODR || "N/A"}</td>
+                <td>{item.GOVSUBY ? item.GOVSUBY.toLocaleString() + " 원" : "N/A"}</td>
+                <td>{item.LOCGOV_ALOTM ? item.LOCGOV_ALOTM.toLocaleString() + " 원" : "N/A"}</td>
+                <td>{item.SALM ? item.SALM.toLocaleString() + " 원" : "N/A"}</td>
+                <td>{item.ETC_ALOTM ? item.ETC_ALOTM.toLocaleString() + " 원" : "N/A"}</td>
+                <td>{item.STDR_DE || "N/A"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>데이터를 불러오는 중입니다...</p>
+      )}
+    </div>
+  );
+};
 
-        </div>
-    );
-}
-
-export default Home;
+export default OpenAPIComponent;

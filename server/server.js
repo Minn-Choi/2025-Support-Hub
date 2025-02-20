@@ -15,80 +15,68 @@ app.use(cors({
 }));
 
 app.get("/crawl", async (req, res) => {
-    const { tabIndex } = req.query;
-
     try {
-        console.log(`📢 [백엔드] 탭 ${tabIndex} 데이터 요청 수신`);
+        console.log(`📢 [백엔드] 데이터 크롤링 시작`);
 
         const browser = await puppeteer.launch({ headless: false });
         const page = await browser.newPage();
-
         await page.goto("https://www.bojo.go.kr/bojo.do", { waitUntil: "networkidle2" });
 
-        if (tabIndex) {
-            const tabSelector = `.tabNavi li[data-target="${tabIndex}"]`;
-            
-            const tabExists = await page.evaluate((selector) => {
-                return document.querySelector(selector) !== null;
-            }, tabSelector);
-
-            if (tabExists) {
-                await page.evaluate((selector) => {
-                    document.querySelector(selector).click();
-                }, tabSelector);
-                console.log(`✅ [백엔드] 탭 ${tabIndex} 클릭 완료`);
-
-                await new Promise(resolve => setTimeout(resolve, 3000));
-            } else {
-                console.warn(`⚠️ [백엔드] 탭 ${tabIndex}을 찾을 수 없음`);
-            }
-        }
-
-        const results = await page.evaluate(async () => {
+        const results = await page.evaluate(() => {
             const extractedData = [];
-
+            const debugLogs = [];
+        
             for (const item of document.querySelectorAll(".tabPage.on .cardItem")) {
-                // const title = item.querySelector(".cardTit")?.innerText.trim() || "제목 없음";
-                // const date = item.querySelector(".termDate")?.innerText.trim() || "기간 없음";
-
                 const titleElement = item.querySelector(".tit.pcOnly");  
                 const dateElement = item.querySelector(".termDate");
-                const orgElement = item.querySelector(".badge.round.blue");
-
+                const orgElement = item.querySelector(".badge.round.blue");  
+        
                 const title = titleElement?.innerText.trim() || "제목 없음";
                 const date = dateElement?.innerText.trim() || "기간 없음";
                 const organization = orgElement?.innerText.trim() || "기관 정보 없음"; 
-                
-                const detailButton = item.querySelector(".cardBtnArea button[onclick*='f_ddtlbzPopup']");
-                let detailContent = "상세 정보 없음";
-
+        
+                // ✅ 상세 정보 버튼 찾기
+                const detailButton = item.querySelector("button[id^='searchLabPssrp_']");
+                let detailUrl = null;
+        
                 if (detailButton) {
-                    detailButton.click();  
-                    await new Promise(resolve => setTimeout(resolve, 2000));  
-
-                    const popup = document.querySelector("#_notice1");
-                    if (popup && popup.style.display !== "none") {
-                        detailContent = popup.innerText.trim() || "상세 정보 없음";
+                    debugLogs.push(`✅ [DEBUG] '${title}' 상세 버튼 찾음`);
+        
+                    // ✅ 버튼 ID에서 필요한 값 추출
+                    const buttonId = detailButton.getAttribute("id");
+                    debugLogs.push(`📢 [DEBUG] 버튼 ID: ${buttonId}`);
+        
+                    const match = buttonId.match(/searchLabPssrp_(\d+)_(\d+)_(\d+)_(\d+)_(\d+)_CARD/);
+                    if (match) {
+                        const param1 = match[1];  
+                        const param2 = match[2];  
+                        const param3 = match[3];  
+                        const param4 = match[4];  
+                        const param5 = match[5];  
+        
+                        // ✅ 상세 페이지 URL 생성
+                        detailUrl = `https://www.bojo.go.kr/bojoDetail.do?param1=${param1}&param2=${param2}&param3=${param3}&param4=${param4}&param5=${param5}`;
+                        debugLogs.push(`📢 [DEBUG] '${title}' 상세 페이지 URL: ${detailUrl}`);
                     }
-
-                    const closeButton = document.querySelector("#_notice1 .close"); 
-                    if (closeButton) {
-                        closeButton.click();
-                        await new Promise(resolve => setTimeout(resolve, 500)); 
-                    }
+                } else {
+                    debugLogs.push(`⚠️ [DEBUG] '${title}' 상세 버튼 없음`);
                 }
-
-                extractedData.push({ title, date, detailContent, organization });
+        
+                extractedData.push({ title, date, detailUrl, organization });
             }
-
-            return extractedData;
+        
+            return { extractedData, debugLogs };
         });
+        
+        // ✅ 브라우저 로그를 Node.js 터미널에서 확인
+        console.log("📢 [DEBUG] 브라우저 로그:", results.debugLogs);
+        
 
-        console.log(`✅ [백엔드] 크롤링 성공! 총 ${results.length}개 항목`);
-        console.log(`📢 [백엔드] 크롤링된 데이터:`, results);
+        console.log(`✅ [백엔드] 크롤링 성공! 총 ${results.extractedData.length}개 항목`);
+        console.log("📢 [DEBUG] 브라우저 로그:", results.debugLogs);
 
         await browser.close();
-        res.json({ success: true, data: results });
+        res.json({ success: true, data: results.extractedData, debugLogs: results.debugLogs });
 
     } catch (error) {
         console.error("❌ [백엔드] 크롤링 오류:", error);
