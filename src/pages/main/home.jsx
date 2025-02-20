@@ -3,7 +3,7 @@ import axios from "axios";
 
 const OpenAPIComponent = () => {
   const [pbnsData, setPbnsData] = useState([]); 
-  const [asbsData, setAsbsData] = useState([]);
+  const [asbsData, setAsbsData] = useState([]); 
 
   const API_KEY = import.meta.env.VITE_API_KEY;
 
