@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import CustomCalendar from "../../components/calendar/calendar.jsx"; 
 
 const OpenAPIComponent = () => {
   const [pbnsData, setPbnsData] = useState([]);
@@ -7,6 +8,7 @@ const OpenAPIComponent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null); 
   const [filteredPbnsData, setFilteredPbnsData] = useState([]);
   const [filteredAsbsData, setFilteredAsbsData] = useState([]);
 
@@ -23,7 +25,7 @@ const OpenAPIComponent = () => {
             numOfRows: 10,
             resultType: "json",
             bsnsyear: 2025,
-            jrsd_nm: "보건복지부",
+            jrsd_nm: "보건복지부", 
           },
         }
       );
@@ -37,7 +39,7 @@ const OpenAPIComponent = () => {
     } catch (error) {
       console.error("T_OPD_PBNS API 요청 중 오류 발생:", error);
     }
-  };
+  }; 
 
   const fetchAsbsData = async () => {
     try {
@@ -81,6 +83,74 @@ const OpenAPIComponent = () => {
     return amount ? parseInt(amount, 10).toLocaleString() + " 원" : "N/A";
   };
 
+  const Card = ({ item, formatDateString, formatAmount }) => {
+    const [isHovered, setIsHovered] = useState(false);
+  
+    return (
+      <div
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{
+          position: "relative",
+          width: "350px",
+          height:'205px',
+          padding: "15px",
+          borderRadius: "10px",
+          boxShadow:'2px 4px 8px 0px rgba(0, 0, 0, 0.10)',
+          backgroundColor: "white",
+          transition: "transform 0.2s ease-in-out",
+        }}
+      >
+        <p>{item.PSSRP_INSTT_NM || "N/A"}</p>
+        <h3 
+          style={{ 
+            marginBottom: "10px", 
+            fontSize: "18px", 
+            fontWeight: "bold",
+            color: "#333", 
+            whiteSpace: "nowrap", 
+            overflow: "hidden", 
+            textOverflow: "ellipsis", 
+            maxWidth: "330px" 
+          }}
+        >
+          {item.DDTLBZ_NM || "N/A"}
+        </h3>
+        <p>{item.RCEPT_BEGIN_DE && item.RCEPT_END_DE
+          ? `${formatDateString(item.RCEPT_BEGIN_DE)} ~ ${formatDateString(item.RCEPT_END_DE)}`
+          : "N/A"}
+        </p>
+  
+        {isHovered && (
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "350px",
+              backgroundColor: "white",
+              border: "1px solid black",
+              padding: "10px",
+              boxShadow: "2px 2px 10px rgba(0,0,0,0.2)",
+              zIndex: "1000",
+              borderRadius: "10px",
+              transition: "opacity 0.3s ease-in-out",
+            }}
+          >
+            <p><strong>사업 개요:</strong> {item.BSNS_SMRY || item.BSNS_PURPS_CN || "N/A"}</p>
+            <p><strong>지원 금액:</strong> {formatAmount(item.SPORT_BGAMT)}</p>
+            <p><strong>제출 서류:</strong> {item.PRESENTN_PAPERS_GUIDANCE_CN || "N/A"}</p>
+            <p><strong>접수 방법:</strong> {item.REQST_RCEPT_MTH_CN || "N/A"}</p>
+            <p><strong>담당자:</strong> {item.CHARGER_NM ? `${item.CHARGER_NM} (${item.CHARGER_TELNO || "N/A"})` : "N/A"}</p>
+            {item.CHARGER_EMAIL && <p><a href={`mailto:${item.CHARGER_EMAIL}`}>{item.CHARGER_EMAIL}</a></p>}
+          </div>
+        )}
+      </div>
+    );
+  };
+  
+
   useEffect(() => {
     const filteredPbns = pbnsData.filter((item) => {
       const matchesSearch = item.DDTLBZ_NM?.includes(searchTerm);
@@ -96,7 +166,10 @@ const OpenAPIComponent = () => {
         (!startFilterDate || (beginDate && beginDate >= startFilterDate)) &&
         (!endFilterDate || (endDateValue && endDateValue <= endFilterDate));
 
-      return matchesSearch && matchesDate;
+      const matchesCalendar =
+        !selectedDate || (beginDate && endDateValue && beginDate <= selectedDate && selectedDate <= endDateValue);
+
+      return matchesSearch && matchesDate && matchesCalendar;
     });
 
     setFilteredPbnsData(filteredPbns);
@@ -105,76 +178,130 @@ const OpenAPIComponent = () => {
       item.DDTLBZ_NM?.includes(searchTerm)
     );
     setFilteredAsbsData(filteredAsbs);
-  }, [searchTerm, startDate, endDate, pbnsData, asbsData]);
+  }, [searchTerm, startDate, endDate, selectedDate, pbnsData, asbsData]);
 
   return (
     <div>
-      <h2>📢 2025년 공모사업 목록</h2>
+      <h2>2025년 공모사업 목록</h2>
 
-      {/* 검색 및 날짜 필터링 UI */}
-      <div style={{ marginBottom: "10px" }}>
+      <div style={{ marginBottom: "10px", border: 'none' }}>
         <input
           type="text"
-          placeholder="🔍 사업명 검색"
+          placeholder="사업명 검색"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ padding: "8px", width: "200px", marginRight: "10px" }}
+          style={{
+            padding: "8px",
+            width: "300px",
+            marginRight: "10px",
+            borderRadius: "50px",
+            border: '1px solid #ABABAB',
+            outline: "none", 
+            backgroundColor: "white",
+            fontFamily: 'Pretendard',
+            marginRight: '50px',
+          }}
         />
-        <label>📅 접수 시작일: </label>
+        <label  style={{fontFamily: 'Pretendard'}}>접수 시작일 </label>
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          style={{ padding: "5px", marginRight: "10px" }}
+          style={{ padding: "5px", marginRight: "10px",  borderRadius:'13px', borderRadius: "50px",
+            border: '1px solid #ABABAB',
+            outline: "none", 
+            backgroundColor: "white",
+            fontFamily: 'Pretendard',
+            width:'140px',
+          marginRight:'20px',color:'gray'}}
         />
-        <label>📅 접수 마감일: </label>
+        <label style={{fontFamily: 'Pretendard'}}>접수 마감일 </label>
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          style={{ padding: "5px" }}
+          style={{ padding: "5px",  borderRadius:'13px',  borderRadius: "50px",
+            border: '1px solid #ABABAB',
+            outline: "none", 
+            backgroundColor: "white",
+            fontFamily: 'Pretendard',
+          width:'140px',
+        color:'gray' }}
         />
       </div>
 
-      <h3>📌 공모사업 목록 (T_OPD_PBNS)</h3>
+      <CustomCalendar onSelectDate={setSelectedDate} />
+
+      <h2 style={{
+          color: "#000",
+          fontFamily: "Pretendard", 
+          fontSize: "23px",
+          fontStyle: "normal",
+          fontWeight: 600,
+          lineHeight: "normal",
+          marginBottom: "5px" ,
+          marginTop: '70px'
+      }}>
+        서울특별시 중구시설관리공단
+      </h2>
+
+      <h3 style={{
+          color: "#000",
+          fontFamily: "Pretendard", 
+          fontSize: "21px",
+          fontStyle: "normal",
+          fontWeight: 500,
+          lineHeight: "normal",
+          marginTop: "0px",
+          marginBottom:'40px'
+      }}>
+        맞춤형 공모사업
+      </h3>
+
       {filteredPbnsData.length > 0 ? (
-        <table border="1" cellPadding="10" style={{ borderCollapse: "collapse", width: "100%" }}>
-          <thead>
-            <tr>
-              <th>사업명</th>
-              <th>수행 기관</th>
-              <th>사업 개요</th>
-              <th>지원 금액</th>
-              <th>접수 기간</th>
-              <th>제출 서류</th>
-              <th>접수 방법</th>
-              <th>담당자 연락처</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPbnsData.map((item, index) => (
-              <tr key={index}>
-                <td>{item.DDTLBZ_NM || "N/A"}</td>
-                <td>{item.PSSRP_INSTT_NM || "N/A"}</td>
-                <td>{item.BSNS_SMRY || item.BSNS_PURPS_CN || "N/A"}</td>
-                <td>{formatAmount(item.SPORT_BGAMT)}</td>
-                <td>{item.RCEPT_BEGIN_DE && item.RCEPT_END_DE ? `${formatDateString(item.RCEPT_BEGIN_DE)} ~ ${formatDateString(item.RCEPT_END_DE)}` : "N/A"}</td>
-                <td>{item.PRESENTN_PAPERS_GUIDANCE_CN || "N/A"}</td>
-                <td>{item.REQST_RCEPT_MTH_CN || "N/A"}</td>
-                <td>
-                  {item.CHARGER_NM ? `${item.CHARGER_NM} (${item.CHARGER_TELNO || "N/A"})` : "N/A"}
-                  <br />
-                  {item.CHARGER_EMAIL && <a href={`mailto:${item.CHARGER_EMAIL}`}>{item.CHARGER_EMAIL}</a>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div 
+        style={{ 
+          display: "flex", 
+          flexWrap: "wrap", 
+          gap: "20px",
+          justifyContent: "center", 
+          alignItems: "center",  
+        }}
+      >
+          {filteredPbnsData.map((item, index) => (
+            <Card key={index} item={item} formatDateString={formatDateString} formatAmount={formatAmount} />
+          ))}
+        </div>
       ) : (
         <p>검색 결과가 없습니다.</p>
       )}
 
-      <h3>📌 보조사업 수행기관별 목록 (T_OPD_ASBS_IFPBNT)</h3>
+
+<h2 style={{
+          color: "#000",
+          fontFamily: "Pretendard", 
+          fontSize: "23px",
+          fontStyle: "normal",
+          fontWeight: 600,
+          lineHeight: "normal",
+          marginBottom: "5px" ,
+          marginTop: '70px'
+      }}>
+        서울특별시 중구시설관리공단
+      </h2>
+
+      <h3 style={{
+          color: "#000",
+          fontFamily: "Pretendard", 
+          fontSize: "21px",
+          fontStyle: "normal",
+          fontWeight: 500,
+          lineHeight: "normal",
+          marginTop: "0px",
+          marginBottom:'40px'
+      }}>
+        맞춤형 보조사업
+      </h3>
       {filteredAsbsData.length > 0 ? (
         <table border="1" cellPadding="10" style={{ borderCollapse: "collapse", width: "100%" }}>
           <thead>

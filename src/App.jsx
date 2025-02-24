@@ -6,12 +6,15 @@ import Footer from "./components/footer/footer.jsx";
 import styled from "styled-components"; 
 
 const MainContainer = styled.main`
-    width: 80%; 
+    width: 70%; 
     margin: 0 auto;  
     display: flex;
     flex-direction: column;
     min-height: 100vh; 
+    align-items: center;
+    justify-content: center; 
 `;
+
 
 function App() {
     return (
