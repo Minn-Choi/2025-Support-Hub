@@ -83,7 +83,7 @@ const OpenAPIComponent = () => {
     return amount ? parseInt(amount, 10).toLocaleString() + " 원" : "N/A";
   };
 
-  const Card = ({ item, formatDateString, formatAmount }) => {
+  const Card = ({ item, index, formatDateString, formatAmount }) => {
     const [isHovered, setIsHovered] = useState(false);
   
     return (
@@ -94,14 +94,22 @@ const OpenAPIComponent = () => {
           position: "relative",
           width: "350px",
           height:'205px',
-          padding: "15px",
+          padding: "0px 15px",
           borderRadius: "10px",
           boxShadow:'2px 4px 8px 0px rgba(0, 0, 0, 0.10)',
-          backgroundColor: "white",
+          backgroundColor: isHovered ? "#FC521C" : "white",
           transition: "transform 0.2s ease-in-out",
         }}
       >
-        <p>{item.PSSRP_INSTT_NM || "N/A"}</p>
+        <p style={{ 
+            color: isHovered ? "white" : "black",
+            fontFeatureSettings: "'liga' off, 'clig' off", 
+            fontFamily: "Pretendard", 
+            fontSize: "17px",
+            fontStyle: "normal",
+            fontWeight: 300,
+            lineHeight: "150%"
+          }}>{item.PSSRP_INSTT_NM || "N/A"}</p>
         <h3 
           style={{ 
             marginBottom: "10px", 
@@ -111,12 +119,29 @@ const OpenAPIComponent = () => {
             whiteSpace: "nowrap", 
             overflow: "hidden", 
             textOverflow: "ellipsis", 
-            maxWidth: "330px" 
+            maxWidth: "330px",
+            color: isHovered ? "white" : "black",
+            fontFeatureSettings: "'liga' off, 'clig' off", 
+            fontFamily: "Pretendard", 
+            fontSize: "20px",
+            fontStyle: "normal",
+            fontWeight: 400,
+            lineHeight: "150%"
           }}
         >
           {item.DDTLBZ_NM || "N/A"}
         </h3>
-        <p>{item.RCEPT_BEGIN_DE && item.RCEPT_END_DE
+        <p
+        style={{ 
+          color: isHovered ? "white" : "black",
+          marginTop:'80px',
+          fontFeatureSettings: "'liga' off, 'clig' off", 
+          fontFamily: "Pretendard", 
+          fontSize: "16px",
+          fontStyle: "normal",
+          fontWeight: 200,
+          lineHeight: "150%"
+        }}>{item.RCEPT_BEGIN_DE && item.RCEPT_END_DE
           ? `${formatDateString(item.RCEPT_BEGIN_DE)} ~ ${formatDateString(item.RCEPT_END_DE)}`
           : "N/A"}
         </p>
@@ -125,25 +150,40 @@ const OpenAPIComponent = () => {
           <div
             style={{
               position: "absolute",
-              top: "100%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: "350px",
+              top: "0%",
+              left: index % 3 === 2 ? "auto" : "100%",
+              right: index % 3 === 2 ? "100%" : "auto", 
+              transform: "translateX(0px)",
+              width: "380px",
+              border: '2px solid #E8E7E5',
               backgroundColor: "white",
-              border: "1px solid black",
               padding: "10px",
-              boxShadow: "2px 2px 10px rgba(0,0,0,0.2)",
+              boxShadow: "2px 4px 8px 0px rgba(0, 0, 0, 0.10)",
               zIndex: "1000",
               borderRadius: "10px",
               transition: "opacity 0.3s ease-in-out",
+              color: "#000",
+              fontFeatureSettings: "'liga' off, 'clig' off", 
+              fontFamily: "Pretendard", 
+              fontSize: "16px",
+              fontStyle: "normal",
+              fontWeight: 300,
+              lineHeight: "150%",
+              paddingTop:'0px'
             }}
           >
-            <p><strong>사업 개요:</strong> {item.BSNS_SMRY || item.BSNS_PURPS_CN || "N/A"}</p>
-            <p><strong>지원 금액:</strong> {formatAmount(item.SPORT_BGAMT)}</p>
-            <p><strong>제출 서류:</strong> {item.PRESENTN_PAPERS_GUIDANCE_CN || "N/A"}</p>
-            <p><strong>접수 방법:</strong> {item.REQST_RCEPT_MTH_CN || "N/A"}</p>
-            <p><strong>담당자:</strong> {item.CHARGER_NM ? `${item.CHARGER_NM} (${item.CHARGER_TELNO || "N/A"})` : "N/A"}</p>
-            {item.CHARGER_EMAIL && <p><a href={`mailto:${item.CHARGER_EMAIL}`}>{item.CHARGER_EMAIL}</a></p>}
+            <p><strong>사업 개요 <br/></strong> {item.BSNS_SMRY || item.BSNS_PURPS_CN || "N/A"}</p>
+            <p><strong>지원 금액 <br/></strong> {formatAmount(item.SPORT_BGAMT)}</p>
+            <p><strong>제출 서류 <br/></strong> {item.PRESENTN_PAPERS_GUIDANCE_CN || "N/A"}</p>
+            <p><strong>접수 방법 <br/></strong> {item.REQST_RCEPT_MTH_CN || "N/A"}</p>
+            <p style={{ margin: "0" }}>
+              <strong>담당자:</strong> {item.CHARGER_NM ? `${item.CHARGER_NM} (${item.CHARGER_TELNO || "N/A"})` : "N/A"}
+            </p>
+            {item.CHARGER_EMAIL && (
+              <p style={{ margin: "0" }}>
+                <a href={`mailto:${item.CHARGER_EMAIL}`}>{item.CHARGER_EMAIL}</a>
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -269,15 +309,14 @@ const OpenAPIComponent = () => {
         }}
       >
           {filteredPbnsData.map((item, index) => (
-            <Card key={index} item={item} formatDateString={formatDateString} formatAmount={formatAmount} />
+            <Card key={index} item={item} index={index} formatDateString={formatDateString} formatAmount={formatAmount} />
           ))}
         </div>
       ) : (
         <p>검색 결과가 없습니다.</p>
       )}
 
-
-<h2 style={{
+      <h2 style={{
           color: "#000",
           fontFamily: "Pretendard", 
           fontSize: "23px",
