@@ -177,7 +177,7 @@ const OpenAPIComponent = () => {
             <p><strong>제출 서류 <br/></strong> {item.PRESENTN_PAPERS_GUIDANCE_CN || "N/A"}</p>
             <p><strong>접수 방법 <br/></strong> {item.REQST_RCEPT_MTH_CN || "N/A"}</p>
             <p style={{ margin: "0" }}>
-              <strong>담당자:</strong> {item.CHARGER_NM ? `${item.CHARGER_NM} (${item.CHARGER_TELNO || "N/A"})` : "N/A"}
+              <strong>담당자 <br/></strong> {item.CHARGER_NM ? `${item.CHARGER_NM} (${item.CHARGER_TELNO || "N/A"})` : "N/A"}
             </p>
             {item.CHARGER_EMAIL && (
               <p style={{ margin: "0" }}>
@@ -189,7 +189,6 @@ const OpenAPIComponent = () => {
       </div>
     );
   };
-  
 
   useEffect(() => {
     const filteredPbns = pbnsData.filter((item) => {
@@ -222,7 +221,18 @@ const OpenAPIComponent = () => {
 
   return (
     <div>
-      <h2>2025년 공모사업 목록</h2>
+      <h2
+      style={{
+        color: "#000",
+        fontFamily: "Pretendard", 
+        fontSize: "23px",
+        fontStyle: "normal",
+        fontWeight: 600,
+        lineHeight: "normal",
+        marginBottom: "20px" ,
+      }}>
+      2025년 공모사업 목록
+      </h2>
 
       <div style={{ marginBottom: "10px", border: 'none' }}>
         <input

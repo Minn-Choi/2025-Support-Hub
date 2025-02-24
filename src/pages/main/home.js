@@ -137,7 +137,6 @@ export const ors2 = {
     position: 'absolute',
     top:'-15px',
     left:'40px',
-   
 };
 export const Title = {
     fontSize:'18px',

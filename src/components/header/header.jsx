@@ -15,8 +15,8 @@ function Header() {
                 <S.Support>보조사업</S.Support>
                 </S.ContentLeft>
                 <S.Search>
-                    <input type="text" placeholder="" />
-                    <img src="/images/search.svg" alt="검색버튼" width="24"/>
+                    {/* <input type="text" placeholder="" />
+                    <img src="/images/search.svg" alt="검색버튼" width="24"/> */}
                 </S.Search>
             </S.Content>
         </S.Wrapper>

@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const Wrapper = styled.div`
   width: 100%;
-  max-width: 700px;
+  max-width: 900px;
   margin: auto;
   padding: 10px;
   border: 1px solid #ddd;
@@ -10,7 +10,7 @@ export const Wrapper = styled.div`
   background: #fff;
   text-align: center;
   font-family: Pretendard;
-  margin-top: 40px;
+  margin-top: 60px;
 `;
 
 export const Header = styled.div`
@@ -29,7 +29,7 @@ export const MonthText = styled.h3`
   font-family: Pretendard;
   font-size: 18px;
   font-style: normal;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 150%;
 `;
 
@@ -78,7 +78,7 @@ export const Day = styled.div`
   border-radius: 120px;
   max-width: 20px;
   border: 20px solid white;
-  margin-left: 11px;
+  margin-left: 24px;
   background-color: ${({ selected }) => (selected ? "#FC521C" : "white")};
   color: ${({ selected }) => (selected ? "white" : "black")};
   &:hover {

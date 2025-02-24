@@ -6,7 +6,7 @@ export const Wrapper = styled.div`
 
 export const Top = styled.div`
     width: 100%;
-    background: #F04D23;
+    background: linear-gradient(90deg, #FC521C 0%, #FB7C0E 100%);
     height: 18px;
 `;
 export const Content = styled.div`
@@ -51,7 +51,7 @@ export const Search = styled.div`
     background: #fff;
     padding: 5px 10px;
     border-radius: 50px;
-    border: 1px solid #ddd;
+    /* border: 1px solid #ddd; */
     flex-grow: 1; 
     max-width: 500px;
 
