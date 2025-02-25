@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as S from "./calendar";
 
-const CustomCalendar = ({ onSelectDate }) => {
+const CustomCalendar = ({ onSelectDate, dateCounts }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
 
@@ -59,17 +59,33 @@ const CustomCalendar = ({ onSelectDate }) => {
       </S.DaysGrid>
 
       <S.CalendarGrid>
-        {allDays.map((date, index) => (
-          <S.Day
-            key={index}
-            selected={date && selectedDate?.toDateString() === date.toDateString()}
-            onClick={() => handleDateClick(date)}
-            style={{ visibility: date ? "visible" : "hidden" }}
-          >
-            {date ? date.getDate() : ""}
-          </S.Day>
-        ))}
+        {allDays.map((date, index) => {
+          const dateStr = date ? date.toISOString().split("T")[0] : null;
+          const pbnsCount = dateStr && dateCounts[dateStr] ? dateCounts[dateStr].pbns : 0;
+          const asbsCount = dateStr && dateCounts[dateStr] ? dateCounts[dateStr].asbs : 0;
+
+          return (
+            <S.Day
+              key={index}
+              selected={date && selectedDate?.toDateString() === date.toDateString()}
+              onClick={() => handleDateClick(date)}
+              style={{ visibility: date ? "visible" : "hidden" }}
+            >
+              <div>{date ? date.getDate() : ""}</div>
+              {dateStr && (pbnsCount > 0 || asbsCount > 0) && (
+                <S.Count  key={index}
+                selected={date && selectedDate?.toDateString() === date.toDateString()}
+                onClick={() => handleDateClick(date)}
+                style={{ visibility: date ? "visible" : "hidden" }}>
+                  {pbnsCount > 0 && <div>공모 : {pbnsCount}</div>}
+                  {asbsCount > 0 && <div>보조 : {asbsCount}</div>}
+                </S.Count>
+              )}
+            </S.Day>
+          );
+        })}
       </S.CalendarGrid>
+      <S.Notice>달력에 표시된 숫자는 공모사업과 보조사업의 개수를 의미합니다.</S.Notice>
     </S.Wrapper>
   );
 };

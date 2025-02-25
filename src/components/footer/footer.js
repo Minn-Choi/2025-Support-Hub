@@ -6,7 +6,7 @@ export const Wrapper = styled.div`
     flex-direction: column;
     background: #FFF;
     padding-bottom: 40px;
-    padding-top: 40px;
+    padding-top:250px;
 `;
 
 export const Box = styled.div`

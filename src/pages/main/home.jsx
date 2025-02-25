@@ -11,6 +11,7 @@ const OpenAPIComponent = () => {
   const [selectedDate, setSelectedDate] = useState(null); 
   const [filteredPbnsData, setFilteredPbnsData] = useState([]);
   const [filteredAsbsData, setFilteredAsbsData] = useState([]);
+  const [dateCounts, setDateCounts] = useState({});
 
   const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -22,10 +23,10 @@ const OpenAPIComponent = () => {
           params: {
             serviceKey: API_KEY,
             pageNo: 1,
-            numOfRows: 10,
+            numOfRows: 50,
             resultType: "json",
             bsnsyear: 2025,
-            jrsd_nm: "보건복지부", 
+            jrsd_nm: "보건복지부",
           },
         }
       );
@@ -49,7 +50,7 @@ const OpenAPIComponent = () => {
           params: {
             serviceKey: API_KEY,
             pageNo: 1,
-            numOfRows: 10,
+            numOfRows: 12,
             resultType: "json",
             bsnsyear: 2023,
             jrsd_nm: "보건복지부",
@@ -74,10 +75,68 @@ const OpenAPIComponent = () => {
     fetchAsbsData();
   }, []);
 
+  useEffect(() => {
+    const countMap = {};
+  
+    const addToCount = (dateStr, type) => {
+      if (!dateStr) return;
+      if (!countMap[dateStr]) {
+        countMap[dateStr] = { pbns: 0, asbs: 0 };
+      }
+      countMap[dateStr][type]++;
+    };
+  
+    pbnsData.forEach((item) => {
+      let beginDateStr = formatDateToLocal(item.RCEPT_BEGIN_DE);
+      const endDateStr = formatDateToLocal(item.RCEPT_END_DE);
+    
+      if (beginDateStr && endDateStr) {
+        let beginDate = new Date(beginDateStr);
+        let endDate = new Date(endDateStr);
+    
+        beginDate.setDate(beginDate.getDate() - 1);
+        beginDateStr = beginDate.toISOString().split("T")[0];
+    
+        while (beginDate <= endDate) {
+          addToCount(beginDate.toISOString().split("T")[0], "pbns");
+          beginDate.setDate(beginDate.getDate() + 1);
+        }
+      }
+    });
+    
+    asbsData.forEach((item) => {
+      let dateStr = formatDateToLocal(item.STDR_DE); 
+    
+      if (dateStr) {
+        let date = new Date(dateStr);
+        date.setDate(date.getDate() - 1);
+        dateStr = date.toISOString().split("T")[0];
+    
+        addToCount(dateStr, "asbs");
+      }
+    });
+  
+    setDateCounts(countMap);
+  }, [pbnsData, asbsData]);
+  
+
   const formatDateString = (dateStr) => {
     if (!dateStr || dateStr.length !== 8) return null;
     return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
   };
+
+  const formatDateToLocal = (dateStr) => {
+    if (!dateStr || dateStr.length !== 8) return null;
+  
+    const year = parseInt(dateStr.slice(0, 4), 10);
+    const month = parseInt(dateStr.slice(4, 6), 10) - 1; 
+    const day = parseInt(dateStr.slice(6, 8), 10);
+  
+    const date = new Date(Date.UTC(year, month, day));
+  
+    return date.toISOString().split("T")[0];
+  };
+  
 
   const formatAmount = (amount) => {
     return amount ? parseInt(amount, 10).toLocaleString() + " 원" : "N/A";
@@ -292,48 +351,65 @@ const OpenAPIComponent = () => {
   useEffect(() => {
     const filteredPbns = pbnsData.filter((item) => {
       const matchesSearch = item.DDTLBZ_NM?.includes(searchTerm);
-
-      const beginDateStr = formatDateString(item.RCEPT_BEGIN_DE);
-      const endDateStr = formatDateString(item.RCEPT_END_DE);
-      const beginDate = beginDateStr ? new Date(beginDateStr) : null;
+    
+      let beginDateStr = formatDateToLocal(item.RCEPT_BEGIN_DE);
+      const endDateStr = formatDateToLocal(item.RCEPT_END_DE);
+    
+      let beginDate = beginDateStr ? new Date(beginDateStr) : null;
       const endDateValue = endDateStr ? new Date(endDateStr) : null;
       const startFilterDate = startDate ? new Date(startDate) : null;
       const endFilterDate = endDate ? new Date(endDate) : null;
-
+    
+      if (beginDate) {
+        beginDate.setDate(beginDate.getDate() - 1);
+        beginDateStr = beginDate.toISOString().split("T")[0];
+      }
+    
       const matchesDate =
         (!startFilterDate || (beginDate && beginDate >= startFilterDate)) &&
         (!endFilterDate || (endDateValue && endDateValue <= endFilterDate));
-
+    
       const matchesCalendar =
         !selectedDate || (beginDate && endDateValue && beginDate <= selectedDate && selectedDate <= endDateValue);
-
+    
       return matchesSearch && matchesDate && matchesCalendar;
     });
 
     setFilteredPbnsData(filteredPbns);
 
-    const filteredAsbs = asbsData.filter((item) =>
-      item.DDTLBZ_NM?.includes(searchTerm)
-    );
+    const filteredAsbs = asbsData.filter((item) => {
+      const matchesSearch = item.DDTLBZ_NM?.includes(searchTerm);
+    
+      let dateStr = formatDateToLocal(item.STDR_DE);
+      let dateValue = dateStr ? new Date(dateStr) : null;
+      const startFilterDate = startDate ? new Date(startDate) : null;
+      const endFilterDate = endDate ? new Date(endDate) : null;
+
+      if (dateValue) {
+        dateValue.setDate(dateValue.getDate() - 1);
+        dateStr = dateValue.toISOString().split("T")[0];
+      }
+    
+      const matchesDate =
+        (!startFilterDate || (dateValue && dateValue >= startFilterDate)) &&
+        (!endFilterDate || (dateValue && dateValue <= endFilterDate));
+    
+      return matchesSearch && matchesDate;
+    });
+    
     setFilteredAsbsData(filteredAsbs);
   }, [searchTerm, startDate, endDate, selectedDate, pbnsData, asbsData]);
 
   return (
     <div>
-      <h2
-      style={{
-        color: "#000",
-        fontFamily: "Pretendard", 
-        fontSize: "23px",
-        fontStyle: "normal",
-        fontWeight: 600,
-        lineHeight: "normal",
-        marginBottom: "20px" ,
-      }}>
-      2025년 공모사업 목록
-      </h2>
-
-      <div style={{ marginBottom: "10px", border: 'none' }}>
+      <div 
+        style={{ 
+          margin: "40px auto 10px auto",
+          border: "none",
+          minWidth: "860px",
+          width: "fit-content" 
+        }}
+      >
         <input
           type="text"
           placeholder="사업명 검색"
@@ -378,7 +454,7 @@ const OpenAPIComponent = () => {
         />
       </div>
 
-      <CustomCalendar onSelectDate={setSelectedDate} />
+      <CustomCalendar onSelectDate={setSelectedDate} dateCounts={dateCounts} />
 
       <h2 style={{
           color: "#000",
@@ -388,7 +464,7 @@ const OpenAPIComponent = () => {
           fontWeight: 600,
           lineHeight: "normal",
           marginBottom: "5px" ,
-          marginTop: '70px'
+          marginTop: '100px'
       }}>
         서울특별시 중구시설관리공단
       </h2>
@@ -432,7 +508,7 @@ const OpenAPIComponent = () => {
           fontWeight: 600,
           lineHeight: "normal",
           marginBottom: "5px" ,
-          marginTop: '70px'
+          marginTop: '150px',
       }}>
         서울특별시 중구시설관리공단
       </h2>

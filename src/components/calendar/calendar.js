@@ -1,8 +1,9 @@
 import styled from "styled-components";
 
 export const Wrapper = styled.div`
+  position: relative;
   width: 100%;
-  max-width: 900px;
+  width: 900px;
   margin: auto;
   padding: 10px;
   border: 1px solid #ddd;
@@ -37,6 +38,7 @@ export const NavButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
+  padding: 0px 25px;
   font-size: 20px;
   &:hover {
     color: #00aaff;
@@ -61,7 +63,7 @@ export const DaysGrid = styled.div`
 export const CalendarGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 15px;
+  margin-bottom: 0px;
 `;
 
 export const Day = styled.div`
@@ -76,7 +78,7 @@ export const Day = styled.div`
   text-align: center;
   cursor: pointer;
   border-radius: 120px;
-  max-width: 20px;
+  max-width: 41px;
   border: 20px solid white;
   margin-left: 24px;
   background-color: ${({ selected }) => (selected ? "#FC521C" : "white")};
@@ -84,4 +86,28 @@ export const Day = styled.div`
   &:hover {
     background-color: ${({ selected }) => (selected ? "#FC521C" : "#ddd")};
   }
+`;
+
+export const Notice = styled.div`
+  position: absolute;
+  bottom: -30px;
+  right: 0px;
+  font-feature-settings: 'liga' off, 'clig' off;
+  font-family: Pretendard;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
+  text-align: right;
+  color: #ABABAB;
+`;
+
+export const Count = styled.div`
+  font-feature-settings: 'liga' off, 'clig' off;
+  font-family: Pretendard;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
+  color: ${({ selected }) => (selected ? "white" : "#88888C")};
 `;

@@ -33,6 +33,11 @@ export const Contest = styled.div`
     line-height: normal;
     margin-right: 5px;
     cursor: pointer;
+
+    &:hover{
+        transform: scale(1.05);
+        color: #FC521C; 
+    }
 `;
 export const Support = styled.div`
     color: #1B1C1E;
@@ -43,6 +48,11 @@ export const Support = styled.div`
     line-height: normal;
     margin-right: 10px;
     cursor: pointer;
+
+    &:hover{
+        transform: scale(1.05);
+        color: #FF8810; 
+    }
 `;
 
 export const Search = styled.div`
