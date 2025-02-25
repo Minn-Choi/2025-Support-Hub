@@ -93,7 +93,6 @@ const OpenAPIComponent = () => {
       if (beginDateStr && endDateStr) {
         let beginDate = new Date(beginDateStr);
         let endDate = new Date(endDateStr);
-    
         beginDate.setDate(beginDate.getDate() - 1);
         beginDateStr = beginDate.toISOString().split("T")[0];
     
@@ -150,105 +149,118 @@ const OpenAPIComponent = () => {
     const [isHovered, setIsHovered] = useState(false);
   
     return (
-      <div
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          position: "relative",
-          width: "350px",
-          height:'205px',
-          padding: "0px 15px",
-          borderRadius: "10px",
-          boxShadow:'2px 4px 8px 0px rgba(0, 0, 0, 0.10)',
-          backgroundColor: isHovered ? "#FC521C" : "white",
-          transition: "transform 0.2s ease-in-out",
-        }}
-      >
-        <p style={{ 
-            color: isHovered ? "white" : "black",
-            fontFeatureSettings: "'liga' off, 'clig' off", 
-            fontFamily: "Pretendard", 
-            fontSize: "17px",
-            fontStyle: "normal",
-            fontWeight: 300,
-            lineHeight: "150%"
-          }}>{item.PSSRP_INSTT_NM || "N/A"}</p>
-        <h3 
-          style={{ 
-            marginBottom: "10px",  
-            whiteSpace: "nowrap", 
-            overflow: "hidden", 
-            textOverflow: "ellipsis", 
-            maxWidth: "330px",
-            color: isHovered ? "white" : "black",
-            fontFeatureSettings: "'liga' off, 'clig' off", 
-            fontFamily: "Pretendard", 
-            fontSize: "20px",
-            fontStyle: "normal",
-            fontWeight: 400,
-            lineHeight: "150%"
+      <>
+        {isHovered && (
+          <div 
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              backgroundColor: "rgba(0, 0, 0, 0.5)", 
+              zIndex: 10, 
+            }}
+          />
+        )}
+  
+        <div
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          style={{
+            position: "relative",
+            width: "350px",
+            height: "205px",
+            padding: "0px 15px",
+            borderRadius: "10px",
+            boxShadow: "2px 4px 8px 0px rgba(0, 0, 0, 0.10)",
+            backgroundColor: isHovered ? "#FC521C" : "white",
+            transition: "transform 0.2s ease-in-out",
+            zIndex: isHovered ? 100 : 1,
           }}
         >
-          {item.DDTLBZ_NM || "N/A"}
-        </h3>
-        <p
-        style={{ 
-          color: isHovered ? "white" : "black",
-          marginTop:'75px',
-          fontFeatureSettings: "'liga' off, 'clig' off", 
-          fontFamily: "Pretendard", 
-          fontSize: "16px",
-          fontStyle: "normal",
-          fontWeight: 200,
-          lineHeight: "150%"
-        }}>{item.RCEPT_BEGIN_DE && item.RCEPT_END_DE
-          ? `${formatDateString(item.RCEPT_BEGIN_DE)} ~ ${formatDateString(item.RCEPT_END_DE)}`
-          : "N/A"}
-        </p>
+          <p style={{ 
+            color: isHovered ? "white" : "black",
+            fontFamily: "Pretendard",
+            fontSize: "17px",
+            fontWeight: 300,
+            lineHeight: "150%",
+          }}>
+            {item.PSSRP_INSTT_NM || "N/A"}
+          </p>
   
-        {isHovered && (
-          <div
-            style={{
-              position: "absolute",
-              top: "0%",
-              left: index % 3 === 2 ? "auto" : "100%",
-              right: index % 3 === 2 ? "100%" : "auto", 
-              transform: "translateX(0px)",
-              width: "380px",
-              border: '2px solid #E8E7E5',
-              backgroundColor: "white",
-              padding: "10px",
-              boxShadow: "2px 4px 8px 0px rgba(0, 0, 0, 0.10)",
-              zIndex: "1000",
-              borderRadius: "10px",
-              transition: "opacity 0.3s ease-in-out",
-              color: "#000",
-              fontFeatureSettings: "'liga' off, 'clig' off", 
-              fontFamily: "Pretendard", 
-              fontSize: "16px",
-              fontStyle: "normal",
-              fontWeight: 300,
+          <h3 
+            style={{ 
+              marginBottom: "10px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: "330px",
+              color: isHovered ? "white" : "black",
+              fontSize: "20px",
+              fontFamily: "Pretendard",
+              fontWeight: 400,
               lineHeight: "150%",
-              paddingTop:'0px'
             }}
           >
-            <p><strong>사업 개요 <br/></strong> {item.BSNS_SMRY || item.BSNS_PURPS_CN || "N/A"}</p>
-            <p><strong>지원 금액 <br/></strong> {formatAmount(item.SPORT_BGAMT)}</p>
-            <p><strong>제출 서류 <br/></strong> {item.PRESENTN_PAPERS_GUIDANCE_CN || "N/A"}</p>
-            <p><strong>접수 방법 <br/></strong> {item.REQST_RCEPT_MTH_CN || "N/A"}</p>
-            <p style={{ margin: "0" }}>
-              <strong>담당자 <br/></strong> {item.CHARGER_NM ? `${item.CHARGER_NM} (${item.CHARGER_TELNO || "N/A"})` : "N/A"}
-            </p>
-            {item.CHARGER_EMAIL && (
+            {item.DDTLBZ_NM || "N/A"}
+          </h3>
+  
+          <p style={{ 
+            color: isHovered ? "white" : "black",
+            marginTop: "75px",
+            fontSize: "16px",
+            fontWeight: 200,
+            lineHeight: "150%",
+          }}>
+            {item.RCEPT_BEGIN_DE && item.RCEPT_END_DE
+              ? `${formatDateString(item.RCEPT_BEGIN_DE)} ~ ${formatDateString(item.RCEPT_END_DE)}`
+              : "N/A"}
+          </p>
+  
+          {isHovered && (
+            <div
+              style={{
+                position: "absolute",
+                top: "0%",
+                left: index % 3 === 2 ? "auto" : "100%",
+                right: index % 3 === 2 ? "100%" : "auto",
+                transform: "translateX(0px)",
+                width: "580px",
+                border: "2px solid #E8E7E5",
+                backgroundColor: "white",
+                padding: "10px",
+                boxShadow: "2px 4px 8px 0px rgba(0, 0, 0, 0.10)",
+                zIndex: 101,
+                borderRadius: "10px",
+                transition: "opacity 0.3s ease-in-out",
+                color: "#000",
+                fontFamily: "Pretendard",
+                fontSize: "16px",
+                fontWeight: 300,
+                lineHeight: "150%",
+                paddingTop: "0px",
+              }}
+            >
+              <p><strong>사업 개요 <br/></strong> {item.BSNS_SMRY || item.BSNS_PURPS_CN || "N/A"}</p>
+              <p><strong>지원 금액 <br/></strong> {formatAmount(item.SPORT_BGAMT)}</p>
+              <p><strong>제출 서류 <br/></strong> {item.PRESENTN_PAPERS_GUIDANCE_CN || "N/A"}</p>
+              <p><strong>접수 방법 <br/></strong> {item.REQST_RCEPT_MTH_CN || "N/A"}</p>
               <p style={{ margin: "0" }}>
-                <a href={`mailto:${item.CHARGER_EMAIL}`}>{item.CHARGER_EMAIL}</a>
+                <strong>담당자 <br/></strong> {item.CHARGER_NM ? `${item.CHARGER_NM} (${item.CHARGER_TELNO || "N/A"})` : "N/A"}
               </p>
-            )}
-          </div>
-        )}
-      </div>
+              {item.CHARGER_EMAIL && (
+                <p style={{ margin: "0" }}>
+                  <a href={`mailto:${item.CHARGER_EMAIL}`}>{item.CHARGER_EMAIL}</a>
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </>
     );
   };
+  
 
   const CardSecond = ({ item, index, formatDateString, formatAmountSecond }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -333,7 +345,7 @@ const OpenAPIComponent = () => {
               fontStyle: "normal",
               fontWeight: 300,
               lineHeight: "150%",
-              paddingTop:'0px'
+              paddingTop:'0px',
             }}
           >
             <p><strong>사업 차수 <br/></strong> {item.DDTLBZ_ODR || "N/A"}</p>

@@ -80,7 +80,7 @@ export const Day = styled.div`
   border-radius: 120px;
   max-width: 41px;
   border: 20px solid white;
-  margin-left: 24px;
+  margin-left: 17px;
   background-color: ${({ selected }) => (selected ? "#FC521C" : "white")};
   color: ${({ selected }) => (selected ? "white" : "black")};
   &:hover {
