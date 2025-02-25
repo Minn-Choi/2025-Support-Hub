@@ -83,6 +83,10 @@ const OpenAPIComponent = () => {
     return amount ? parseInt(amount, 10).toLocaleString() + " 원" : "N/A";
   };
 
+  const formatAmountSecond = (amount) => {
+    return amount ? parseInt(amount, 10).toLocaleString() : "N/A";
+  };
+
   const Card = ({ item, index, formatDateString, formatAmount }) => {
     const [isHovered, setIsHovered] = useState(false);
   
@@ -112,10 +116,7 @@ const OpenAPIComponent = () => {
           }}>{item.PSSRP_INSTT_NM || "N/A"}</p>
         <h3 
           style={{ 
-            marginBottom: "10px", 
-            fontSize: "18px", 
-            fontWeight: "bold",
-            color: "#333", 
+            marginBottom: "10px",  
             whiteSpace: "nowrap", 
             overflow: "hidden", 
             textOverflow: "ellipsis", 
@@ -134,7 +135,7 @@ const OpenAPIComponent = () => {
         <p
         style={{ 
           color: isHovered ? "white" : "black",
-          marginTop:'80px',
+          marginTop:'75px',
           fontFeatureSettings: "'liga' off, 'clig' off", 
           fontFamily: "Pretendard", 
           fontSize: "16px",
@@ -184,6 +185,104 @@ const OpenAPIComponent = () => {
                 <a href={`mailto:${item.CHARGER_EMAIL}`}>{item.CHARGER_EMAIL}</a>
               </p>
             )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const CardSecond = ({ item, index, formatDateString, formatAmountSecond }) => {
+    const [isHovered, setIsHovered] = useState(false);
+  
+    return (
+      <div
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{
+          position: "relative",
+          width: "350px",
+          height:'205px',
+          padding: "0px 15px",
+          borderRadius: "10px",
+          boxShadow:'2px 4px 8px 0px rgba(0, 0, 0, 0.10)',
+          backgroundColor: isHovered ? "#FF8810" : "white",
+          transition: "transform 0.2s ease-in-out",
+        }}
+      >
+        <p style={{ 
+            color: isHovered ? "white" : "black",
+            fontFeatureSettings: "'liga' off, 'clig' off", 
+            fontFamily: "Pretendard", 
+            fontSize: "17px",
+            fontStyle: "normal",
+            fontWeight: 300,
+            lineHeight: "150%"
+          }}>{item.EXC_INSTT_NM || "N/A"}</p>
+        <h3 
+          style={{ 
+            marginBottom: "10px",  
+            whiteSpace: "nowrap", 
+            overflow: "hidden", 
+            textOverflow: "ellipsis", 
+            maxWidth: "330px",
+            color: isHovered ? "white" : "black",
+            fontFeatureSettings: "'liga' off, 'clig' off", 
+            fontFamily: "Pretendard", 
+            fontSize: "20px",
+            fontStyle: "normal",
+            fontWeight: 400,
+            lineHeight: "150%"
+          }}
+        >
+          {item.DDTLBZ_NM || "N/A"}
+        </h3>
+        <p
+        style={{ 
+          color: isHovered ? "white" : "black",
+          marginTop:'75px',
+          fontFeatureSettings: "'liga' off, 'clig' off", 
+          fontFamily: "Pretendard", 
+          fontSize: "16px",
+          fontStyle: "normal",
+          fontWeight: 200,
+          lineHeight: "150%"
+        }}>{item.STDR_DE
+          ? `${formatDateString(item.STDR_DE)}`
+          : "N/A"}
+        </p>
+  
+        {isHovered && (
+          <div
+            style={{
+              position: "absolute",
+              top: "0%",
+              left: index % 3 === 2 ? "auto" : "100%",
+              right: index % 3 === 2 ? "100%" : "auto", 
+              transform: "translateX(0px)",
+              width: "380px",
+              border: '2px solid #E8E7E5',
+              backgroundColor: "white",
+              padding: "10px",
+              boxShadow: "2px 4px 8px 0px rgba(0, 0, 0, 0.10)",
+              zIndex: "1000",
+              borderRadius: "10px",
+              transition: "opacity 0.3s ease-in-out",
+              color: "#000",
+              fontFeatureSettings: "'liga' off, 'clig' off", 
+              fontFamily: "Pretendard", 
+              fontSize: "16px",
+              fontStyle: "normal",
+              fontWeight: 300,
+              lineHeight: "150%",
+              paddingTop:'0px'
+            }}
+          >
+            <p><strong>사업 차수 <br/></strong> {item.DDTLBZ_ODR || "N/A"}</p>
+            <p><strong>국고보조금 (단위:천원) <br/></strong> {formatAmountSecond(item.GOVSUBY)}</p>
+            <p><strong>지자체보조금 (단위:천원)<br/></strong> {formatAmountSecond(item.LOCGOV_ALOTM)}</p>
+            <p><strong>자기부담금 (단위:천원)<br/></strong> {formatAmountSecond(item.SALM)}</p>
+            <p style={{ margin: "0" }}>
+              <strong>기타부담금 (단위:천원)<br/></strong> {formatAmountSecond(item.ETC_ALOTM)}</p>
           </div>
         )}
       </div>
@@ -243,7 +342,6 @@ const OpenAPIComponent = () => {
           style={{
             padding: "8px",
             width: "300px",
-            marginRight: "10px",
             borderRadius: "50px",
             border: '1px solid #ABABAB',
             outline: "none", 
@@ -252,12 +350,12 @@ const OpenAPIComponent = () => {
             marginRight: '50px',
           }}
         />
-        <label  style={{fontFamily: 'Pretendard'}}>접수 시작일 </label>
+        <label  style={{fontFamily: 'Pretendard', marginRight:'5px'}}>접수 시작일 </label>
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          style={{ padding: "5px", marginRight: "10px",  borderRadius:'13px', borderRadius: "50px",
+          style={{ padding: "5px", borderRadius: "50px",
             border: '1px solid #ABABAB',
             outline: "none", 
             backgroundColor: "white",
@@ -265,12 +363,12 @@ const OpenAPIComponent = () => {
             width:'140px',
           marginRight:'20px',color:'gray'}}
         />
-        <label style={{fontFamily: 'Pretendard'}}>접수 마감일 </label>
+        <label style={{fontFamily: 'Pretendard', marginRight:'5px'}}>접수 마감일 </label>
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          style={{ padding: "5px",  borderRadius:'13px',  borderRadius: "50px",
+          style={{ padding: "5px",  borderRadius: "50px",
             border: '1px solid #ABABAB',
             outline: "none", 
             backgroundColor: "white",
@@ -295,18 +393,18 @@ const OpenAPIComponent = () => {
         서울특별시 중구시설관리공단
       </h2>
 
-      <h3 style={{
-          color: "#000",
-          fontFamily: "Pretendard", 
-          fontSize: "21px",
-          fontStyle: "normal",
-          fontWeight: 500,
-          lineHeight: "normal",
-          marginTop: "0px",
-          marginBottom:'40px'
-      }}>
-        맞춤형 공모사업
-      </h3>
+      <div style={{display:'flex',marginTop:'13px',marginBottom:'40px', justifyContent:'center', alignItems:'center', width:'200px', height:'55px', backgroundColor:'#FC521C', borderRadius:'50px'}}>
+        <h3 style={{
+            color: "white",
+            fontFamily: "Pretendard", 
+            fontSize: "21px",
+            fontStyle: "normal",
+            fontWeight: 500,
+            lineHeight: "normal",
+        }}>
+          맞춤형 공모사업
+        </h3>
+      </div>
 
       {filteredPbnsData.length > 0 ? (
         <div 
@@ -339,47 +437,33 @@ const OpenAPIComponent = () => {
         서울특별시 중구시설관리공단
       </h2>
 
-      <h3 style={{
-          color: "#000",
-          fontFamily: "Pretendard", 
-          fontSize: "21px",
-          fontStyle: "normal",
-          fontWeight: 500,
-          lineHeight: "normal",
-          marginTop: "0px",
-          marginBottom:'40px'
-      }}>
-        맞춤형 보조사업
-      </h3>
+      <div style={{display:'flex',marginTop:'13px',marginBottom:'40px', justifyContent:'center', alignItems:'center', width:'200px', height:'55px', backgroundColor:'#FF8810', borderRadius:'50px'}}>
+        <h3 style={{
+            color: "white",
+            fontFamily: "Pretendard", 
+            fontSize: "21px",
+            fontStyle: "normal",
+            fontWeight: 500,
+            lineHeight: "normal",
+        }}>
+          맞춤형 보조사업
+        </h3>
+      </div>
+
       {filteredAsbsData.length > 0 ? (
-        <table border="1" cellPadding="10" style={{ borderCollapse: "collapse", width: "100%" }}>
-          <thead>
-            <tr>
-              <th>사업명</th>
-              <th>수행 기관</th>
-              <th>사업 차수</th>
-              <th>국고보조금</th>
-              <th>지자체보조금</th>
-              <th>자기부담금</th> 
-              <th>기타부담금</th>
-              <th>기준일자</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredAsbsData.map((item, index) => (
-              <tr key={index}>
-                <td>{item.DDTLBZ_NM || "N/A"}</td>
-                <td>{item.EXC_INSTT_NM || "N/A"}</td>
-                <td>{item.DDTLBZ_ODR || "N/A"}</td>
-                <td>{formatAmount(item.GOVSUBY)}</td>
-                <td>{formatAmount(item.LOCGOV_ALOTM)}</td>
-                <td>{formatAmount(item.SALM)}</td>
-                <td>{formatAmount(item.ETC_ALOTM)}</td>
-                <td>{item.STDR_DE || "N/A"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div 
+        style={{ 
+          display: "flex", 
+          flexWrap: "wrap", 
+          gap: "20px",
+          justifyContent: "center", 
+          alignItems: "center",  
+        }}
+      >
+          {filteredAsbsData.map((item, index) => (
+            <CardSecond key={index} item={item} index={index} formatDateString={formatDateString} formatAmountSecond={formatAmountSecond} />
+          ))}
+        </div>
       ) : (
         <p>검색 결과가 없습니다.</p>
       )}
