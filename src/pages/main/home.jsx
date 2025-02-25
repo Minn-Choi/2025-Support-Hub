@@ -158,7 +158,7 @@ const OpenAPIComponent = () => {
               left: 0,
               width: "100vw",
               height: "100vh",
-              backgroundColor: "rgba(0, 0, 0, 0.5)", 
+              backgroundColor: "rgba(0, 0, 0, 0.3)", 
               zIndex: 10, 
             }}
           />
@@ -264,101 +264,120 @@ const OpenAPIComponent = () => {
 
   const CardSecond = ({ item, index, formatDateString, formatAmountSecond }) => {
     const [isHovered, setIsHovered] = useState(false);
-  
+
     return (
-      <div
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          position: "relative",
-          width: "350px",
-          height:'205px',
-          padding: "0px 15px",
-          borderRadius: "10px",
-          boxShadow:'2px 4px 8px 0px rgba(0, 0, 0, 0.10)',
-          backgroundColor: isHovered ? "#FF8810" : "white",
-          transition: "transform 0.2s ease-in-out",
-        }}
-      >
-        <p style={{ 
-            color: isHovered ? "white" : "black",
-            fontFeatureSettings: "'liga' off, 'clig' off", 
-            fontFamily: "Pretendard", 
-            fontSize: "17px",
-            fontStyle: "normal",
-            fontWeight: 300,
-            lineHeight: "150%"
-          }}>{item.EXC_INSTT_NM || "N/A"}</p>
-        <h3 
-          style={{ 
-            marginBottom: "10px",  
-            whiteSpace: "nowrap", 
-            overflow: "hidden", 
-            textOverflow: "ellipsis", 
-            maxWidth: "330px",
-            color: isHovered ? "white" : "black",
-            fontFeatureSettings: "'liga' off, 'clig' off", 
-            fontFamily: "Pretendard", 
-            fontSize: "20px",
-            fontStyle: "normal",
-            fontWeight: 400,
-            lineHeight: "150%"
-          }}
-        >
-          {item.DDTLBZ_NM || "N/A"}
-        </h3>
-        <p
-        style={{ 
-          color: isHovered ? "white" : "black",
-          marginTop:'75px',
-          fontFeatureSettings: "'liga' off, 'clig' off", 
-          fontFamily: "Pretendard", 
-          fontSize: "16px",
-          fontStyle: "normal",
-          fontWeight: 200,
-          lineHeight: "150%"
-        }}>{item.STDR_DE
-          ? `${formatDateString(item.STDR_DE)}`
-          : "N/A"}
-        </p>
-  
+      <>
         {isHovered && (
+          <div 
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              backgroundColor: "rgba(0, 0, 0, 0.3)", 
+              zIndex: 10, 
+            }}
+          />
+        )}
+
+        <div 
+          style={{ position: "relative" }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           <div
             style={{
-              position: "absolute",
-              top: "0%",
-              left: index % 3 === 2 ? "auto" : "100%",
-              right: index % 3 === 2 ? "100%" : "auto", 
-              transform: "translateX(0px)",
-              width: "380px",
-              border: '2px solid #E8E7E5',
-              backgroundColor: "white",
-              padding: "10px",
-              boxShadow: "2px 4px 8px 0px rgba(0, 0, 0, 0.10)",
-              zIndex: "1000",
+              position: "relative",
+              width: "350px",
+              height: "205px",
+              padding: "0px 15px",
               borderRadius: "10px",
-              transition: "opacity 0.3s ease-in-out",
-              color: "#000",
-              fontFeatureSettings: "'liga' off, 'clig' off", 
-              fontFamily: "Pretendard", 
-              fontSize: "16px",
-              fontStyle: "normal",
-              fontWeight: 300,
-              lineHeight: "150%",
-              paddingTop:'0px',
+              boxShadow: "2px 4px 8px 0px rgba(0, 0, 0, 0.10)",
+              backgroundColor: isHovered ? "#FF8810" : "white",
+              transition: "transform 0.2s ease-in-out",
+              zIndex: isHovered ? 100 : 1,
             }}
           >
-            <p><strong>사업 차수 <br/></strong> {item.DDTLBZ_ODR || "N/A"}</p>
-            <p><strong>국고보조금 (단위:천원) <br/></strong> {formatAmountSecond(item.GOVSUBY)}</p>
-            <p><strong>지자체보조금 (단위:천원)<br/></strong> {formatAmountSecond(item.LOCGOV_ALOTM)}</p>
-            <p><strong>자기부담금 (단위:천원)<br/></strong> {formatAmountSecond(item.SALM)}</p>
-            <p style={{ margin: "0" }}>
-              <strong>기타부담금 (단위:천원)<br/></strong> {formatAmountSecond(item.ETC_ALOTM)}</p>
+            <p style={{ 
+                color: isHovered ? "white" : "black",
+                fontFamily: "Pretendard",
+                fontSize: "17px",
+                fontWeight: 300,
+                lineHeight: "150%",
+                paddingTop:'16px'
+            }}>
+              {item.EXC_INSTT_NM || "N/A"}
+            </p>
+            
+            <h3 
+              style={{ 
+                marginBottom: "10px",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                fontFamily: "Pretendard",
+                maxWidth: "330px",
+                color: isHovered ? "white" : "black",
+                fontSize: "20px",
+                fontWeight: 400,
+                lineHeight: "150%",
+              }}
+            >
+              {item.DDTLBZ_NM || "N/A"}
+            </h3>
+
+            <p
+              style={{ 
+                color: isHovered ? "white" : "black",
+                marginTop: "75px",
+                fontSize: "16px",
+                fontWeight: 200,
+                lineHeight: "150%",
+                fontFamily: "Pretendard",
+              }}
+            >
+              {item.STDR_DE ? `${formatDateString(item.STDR_DE)}` : "N/A"}
+            </p>
+
+            {isHovered && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "0%",
+                  left: index % 3 === 2 ? "auto" : "100%",
+                  right: index % 3 === 2 ? "100%" : "auto",
+                  transform: "translateX(0px)",
+                  width: "380px",
+                  border: "2px solid #E8E7E5",
+                  backgroundColor: "white",
+                  padding: "10px",
+                  boxShadow: "2px 4px 8px 0px rgba(0, 0, 0, 0.10)",
+                  zIndex: 101, 
+                  borderRadius: "10px",
+                  transition: "opacity 0.3s ease-in-out",
+                  color: "#000",
+                  fontFamily: "Pretendard",
+                  fontSize: "16px",
+                  fontWeight: 300,
+                  lineHeight: "150%",
+                  paddingTop: "0px",
+                }}
+              >
+                <p><strong>사업 차수 <br/></strong> {item.DDTLBZ_ODR || "N/A"}</p>
+                <p><strong>국고보조금 (단위:천원) <br/></strong> {formatAmountSecond(item.GOVSUBY)}</p>
+                <p><strong>지자체보조금 (단위:천원) <br/></strong> {formatAmountSecond(item.LOCGOV_ALOTM)}</p>
+                <p><strong>자기부담금 (단위:천원) <br/></strong> {formatAmountSecond(item.SALM)}</p>
+                <p style={{ margin: "0" }}>
+                  <strong>기타부담금 (단위:천원) <br/></strong> {formatAmountSecond(item.ETC_ALOTM)}
+                </p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      </>
     );
-  };
+};
 
   useEffect(() => {
     const filteredPbns = pbnsData.filter((item) => {
